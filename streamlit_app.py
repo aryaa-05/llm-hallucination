@@ -10,9 +10,6 @@ import plotly.express as px
 import pandas as pd
 import time
 
-import os
-st.sidebar.caption(f"NLI model repo: `{os.environ.get('ELECTRA_HF_REPO', 'NOT SET')}`")
-
 # ── Page config ──────────────────────────────────────────────
 st.set_page_config(
     page_title="HalluciDetect",
@@ -196,7 +193,7 @@ def claim_class(verdict: str) -> str:
 
 def risk_color(risk: float) -> str:
     if risk >= 0.70: return "#ff3333"
-    if risk >= 0.45: return "#ffaa00"
+    if risk >= 0.35: return "#ffaa00"
     return "#00cc55"
 
 def risk_emoji(verdict: str) -> str:
@@ -220,8 +217,8 @@ def make_gauge(risk: float, verdict: str) -> go.Figure:
             "bgcolor"   : "#1a1a1a",
             "bordercolor": "#2a2a2a",
             "steps"     : [
-                {"range": [0,  45], "color": "#0a2d14"},
-                {"range": [45, 70], "color": "#2d2200"},
+                {"range": [0,  35], "color": "#0a2d14"},
+                {"range": [35, 70], "color": "#2d2200"},
                 {"range": [70, 100],"color": "#2d0a0a"},
             ],
             "threshold" : {
@@ -242,7 +239,9 @@ def make_shap_chart(shap_values: dict) -> go.Figure:
     items   = sorted(shap_values.items(), key=lambda x: abs(x[1]))
     labels  = [k.replace("_", " ") for k, _ in items]
     values  = [v for _, v in items]
-    colors  = ["#ff4444" if v < 0 else "#00cc55" for v in values]
+    # Positive SHAP = pushes risk UP (increases hallucination likelihood) = red.
+    # Negative SHAP = pushes risk DOWN (supports factuality)         = green.
+    colors  = ["#ff4444" if v > 0 else "#00cc55" for v in values]
 
     fig = go.Figure(go.Bar(
         x           = values,
@@ -281,7 +280,7 @@ def make_claims_risk_chart(claim_results: list) -> go.Figure:
         textfont     = {"family": "Space Mono", "size": 11},
     ))
     fig.add_hline(y=0.70, line_dash="dot", line_color="#ff3333", opacity=0.6)
-    fig.add_hline(y=0.45, line_dash="dot", line_color="#ffaa00", opacity=0.6)
+    fig.add_hline(y=0.35, line_dash="dot", line_color="#ffaa00", opacity=0.6)
     fig.update_layout(
         title      = {"text": "Per-Claim Hallucination Risk", "font": {"family": "Space Mono", "size": 12, "color": "#888"}},
         yaxis      = {"range": [0, 1.1], "gridcolor": "#2a2a2a", "tickfont": {"color": "#555"}},
@@ -316,7 +315,15 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("""
 <div style="font-size:0.75rem; color:#555; font-family: Space Mono, monospace;">
-GEMINI primary<br>GROQ fallback<br>SEMANTIC search<br>DeBERTa-v3 NLI
+LLM ROUTER<br>Gemini primary → Groq → OpenRouter<br>SEMANTIC search · DeBERTa-v3 NLI<br>SelfCheckGPT QA · SHAP
+</div>
+""", unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.markdown("""
+<div style="font-size:0.72rem; color:#444; font-family: DM Sans, sans-serif;">
+<b>Research demo.</b> Full methodology in <code>documentation.md</code>.
+Components: claim decomposition (LLM router) · web evidence + bidirectional NLI · QA self-consistency · hybrid XGBoost/heuristic + LLM judge · SHAP explainability.
 </div>
 """, unsafe_allow_html=True)
 
@@ -416,7 +423,10 @@ if "report" in st.session_state:
     c4.metric("Uncertain",     report["uncertain_claims"])
     c5.metric("Factual",       report["factual_claims"])
 
-    st.caption(f"Completed in {elapsed:.1f}s")
+    st.caption(
+        f"Completed in {elapsed:.1f}s · "
+        "Thresholds: risk < 0.35 = FACTUAL, 0.35–0.70 = UNCERTAIN, ≥ 0.70 = HALLUCINATION"
+    )
 
     if not report["claim_results"]:
         st.info("No verifiable claims were extracted.")

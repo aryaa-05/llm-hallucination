@@ -1,0 +1,17 @@
+streamlit>=1.35.0
+torch>=2.0.0
+transformers>=4.40.0
+datasets>=2.18.0
+bert-score>=0.3.13
+sentencepiece>=0.1.99
+accelerate>=0.27.0
+evaluate>=0.4.1
+google-generativeai>=0.5.0
+groq>=0.5.0
+xgboost>=2.0.0
+shap>=0.44.0
+plotly>=5.20.0
+pandas>=2.0.0
+duckduckgo-search>=6.0.0
+requests>=2.31.0
+sentence-transformers>=3.0.0

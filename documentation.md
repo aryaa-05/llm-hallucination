@@ -1,14 +1,5 @@
 # HalluciDetect: Multi-Source, Explainable Detection of Factual Hallucinations in Large Language Model Outputs
 
-**Documentation for Research Conference Presentation**
-
-> This document is written to support the presentation of the HalluciDetect
-> system at a research conference. It includes an abstract, background and
-> related work, a full methodological description of every pipeline stage,
-> deployment and tooling details, evaluation notes, limitations, and
-> references. Wherever possible, the text maps **1:1 to the source code** in
-> the `pipeline/` directory.
-
 ---
 
 ## Abstract

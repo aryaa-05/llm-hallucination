@@ -1,15 +1,5 @@
----
-title: HalluciDetect
-emoji: 🔍
-colorFrom: gray
-colorTo: blue
-sdk: streamlit
-sdk_version: 1.57.0
-app_file: streamlit_app.py
-pinned: false
----
 
-# 🔍 HalluciDetect — LLM Hallucination Detector
+# HalluciDetect — LLM Hallucination Detector
 
 Multi-source, explainable hallucination detection pipeline for LLM-generated text.
 Every claim is verified independently using real-world evidence and internal
